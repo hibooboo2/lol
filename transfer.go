@@ -2,7 +2,7 @@ package lol
 
 import mgo "gopkg.in/mgo.v2"
 
-func (db *lolMongo) TransferToAnother(host string, port int) error {
+func (db *lolMongo) transferToAnother(host string, port int) error {
 	db2, err := NewLolMongo(host, port)
 	if err != nil {
 		return err
@@ -89,102 +89,18 @@ func (db *lolMongo) TransferToAnother(host string, port int) error {
 	return nil
 }
 
-func (db *lolMongo) GameIDSToIDTable() {
-	// log.Println(db.session.DB("lol").C("gamesid").DropCollection())
-	// start := time.Now()
-	// log.Println("Building index")
-	// db.games.Pipe()
-	// log.Println(db.games.EnsureIndex(mgo.Index{
-	// 	Key:      []string{"gameid"},
-	// 	DropDups: true,
-	// 	Unique:   false,
-	// 	Name:     "game_IDs_index",
-	// }))
-	// log.Println("Index Built Took:", time.Since(start))
-	logger.Println(db.session.BuildInfo())
-	// logger.Println(testDB.Pipe([]bson.M{{"$group": {"_id": "$gameid", "dups": {"$push": "$_id"}}}}).All(&stuff))
-	// var ids []int64
-	// logger.Println(db.games.Find(nil).Distinct("gameid", &ids))
-	// f, _ := os.Create("gameids")
-	// data, _ := json.Marshal(ids)
-	// f.Write(data)
-	// f.Close()
-	// logger.Println(len(ids))
-	// var games []Game
-	// logger.Println(db.games.Find(nil).All(&games))
-	// gamesMap := make(map[int64]Game)
-	// f, _ := os.Open("allgames.json")
-	// defer f.Close()
-	// err := json.NewDecoder(f).Decode(&gamesMap)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// for _, game := range gamesMap {
-	// 	err = db.db.C("new_games").Insert(game)
-	// 	if err != nil {
-	// 		logger.Println("err:", err)
-	// 	}
-	// 	fmt.Fprintf(os.Stdout, "GameID:\t %d\r", game.GameID)
-	// }
-	// for _, game := range games {
-	// 	gamesMap[game.GameID] = game
-	// }
-	// dupGamesCount := make(map[int64]int)
-	// for _, game := range games {
-	// dupGamesCount[game.GameID]++
-	// }
-	// data, _ = json.Marshal(gamesMap)
-	// f, _ = os.Create("allgames.json")
-	// f.Write(data)
-	// f.Close()
-	// os.Exit(0)
-	// removed := 0
-	// toskip := 0
-	// for id, n := range dupGamesCount {
-	// 	if n <= 1 {
-	// 		logger.Println("Skipped: ", id)
-	// 		toskip++
-	// 		continue
-	// 	} else {
-	// 		continue
-	// 	}
-	// var err error
-	// for n > 1 {
-	// 	err = db.games.Remove(bson.M{"gameid": id})
-	// 	n--
-	// 	if err != nil {
-	// 		logger.Println("err: errored on game removal", id)
-	// 		continue
-	// 	}
-	// 	removed++
-	// 	fmt.Fprintf(os.Stdout, "n: %d \tRemoved: %d\r", n, id)
-	// }
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stdout, "Failed Dups for: %d\r", id)
-	// 	continue
-	// }
-	// fmt.Fprintf(os.Stdout, "Removed: %d Removed Dups for: %d\r", removed, id)
-	// }
-	// logger.Printf("To SKip: %d Total %d Records TO remove: %d", toskip, len(games), len(games)-toskip)
-	// gamesCount, _ := db.games.Count()
-	// newGames, _ := db.db.C("new_games").Count()
-	// logger.Println("After games de dup loop:", gamesCount, "Games in map:", len(gamesMap), "Removed:", gamesCount-newGames)
-	logger.Println(db.games.EnsureIndex(mgo.Index{
+func (db *lolMongo) EnsureIndexes() error {
+	err := db.games.EnsureIndex(mgo.Index{
 		Key:      []string{"gameid"},
 		DropDups: true,
 		Unique:   true,
-	}))
-	logger.Println(db.players.EnsureIndex(mgo.Index{
+	})
+	if err != nil {
+		return err
+	}
+	return db.players.EnsureIndex(mgo.Index{
 		Key:      []string{"accountid"},
 		DropDups: true,
 		Unique:   true,
-	}))
-}
-
-func (db *lolMongo) GetGameRan() {
-	// var games []Game
-	// logger.Println(db.games.Find(bson.M{"gameid": 2591856267}).Select(bson.M{"gameid": 1, "participantidentities": 1}).All(&games))
-	// logger.Println(games)
-	// logger.Println(len(games))
-	logger.Println(db.games.Count())
+	})
 }

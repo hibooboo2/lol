@@ -44,6 +44,10 @@ func NewLolMongo(host string, port int) (*lolMongo, error) {
 		playersVisited: session.DB("lol").C("playersvisited"),
 	}
 	mongo.lolCache = &memCache{}
+	err = mongo.EnsureIndexes()
+	if err != nil {
+		return nil, err
+	}
 	return mongo, nil
 }
 
