@@ -1,7 +1,6 @@
 package lol
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -180,14 +179,8 @@ func (c *client) WebMatchHistory(accountID int64, platformID string, index int) 
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.Get(reqURL.String(), false)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("Expected 200 code got: %d", resp.StatusCode)
-	}
-	err = json.NewDecoder(resp.Body).Decode(&games)
+
+	err = c.GetObjUnauthedRiot(reqURL.String(), &games, WEEK)
 	if err != nil {
 		return nil, err
 	}

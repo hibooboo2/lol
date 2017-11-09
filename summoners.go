@@ -39,7 +39,7 @@ func (s *summoners) Arg(arg string) (*Summoner, error) {
 // /lol/summoner/v3/summoners/{summonerId}
 func (s *summoners) ID(summonerID int64) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjRiot(fmt.Sprintf("/lol/summoner/v3/summoners/%d", summonerID), &sum)
+	err := s.c.GetObjRiot(fmt.Sprintf("/lol/summoner/v3/summoners/%d", summonerID), &sum, DAY)
 	if err != nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (s *summoners) ID(summonerID int64) *Summoner {
 // /lol/summoner/v3/summoners/by-account/{accountId}
 func (s *summoners) ByAccountID(accountID int64) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjRiot(fmt.Sprintf(`/lol/summoner/v3/summoners/by-account/%d`, accountID), &sum)
+	err := s.c.GetObjRiot(fmt.Sprintf(`/lol/summoner/v3/summoners/by-account/%d`, accountID), &sum, DAY)
 	if err != nil {
 		return nil
 	}
@@ -59,7 +59,7 @@ func (s *summoners) ByAccountID(accountID int64) *Summoner {
 // /lol/summoner/v3/summoners/by-name/{summonerName}
 func (s *summoners) ByName(summonerName string) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjRiot(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum)
+	err := s.c.GetObjRiot(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, DAY)
 	if err != nil {
 		logger.Println("err: ", err)
 		return nil

@@ -15,6 +15,7 @@ type lolMongo struct {
 	games          *mgo.Collection
 	players        *mgo.Collection
 	playersVisited *mgo.Collection
+	requests       *mgo.Collection
 	lolCache       *memCache
 }
 
@@ -30,24 +31,27 @@ func NewLolMongo(host string, port int) (*lolMongo, error) {
 	if err != nil {
 		return nil, err
 	}
-	n, _ := session.DB("lol").C("games").Count()
-	logger.Printf("debug: games: %d", n)
-	n, _ = session.DB("lol").C("players").Count()
-	logger.Printf("debug: left to visit: %d", n)
-	n, _ = session.DB("lol").C("playersvisited").Count()
-	logger.Printf("debug: visited: %d", n)
 	mongo := &lolMongo{
 		session:        session,
 		db:             session.DB("lol"),
 		games:          session.DB("lol").C("games"),
 		players:        session.DB("lol").C("players"),
 		playersVisited: session.DB("lol").C("playersvisited"),
+		requests:       session.DB("lol").C("requests"),
 	}
 	mongo.lolCache = &memCache{}
 	err = mongo.EnsureIndexes()
 	if err != nil {
 		return nil, err
 	}
+	n, _ := mongo.games.Count()
+	logger.Printf("debug: games: %d", n)
+	n, _ = mongo.players.Count()
+	logger.Printf("debug: left to visit: %d", n)
+	n, _ = mongo.playersVisited.Count()
+	logger.Printf("debug: visited: %d", n)
+	n, _ = mongo.requests.Count()
+	logger.Println("debug: requests stored:", n)
 	return mongo, nil
 }
 
@@ -57,6 +61,52 @@ func (db *lolMongo) GetGame(gameID int64, currentPlatformID string) (Game, error
 	err := db.games.Find(bson.M{"gameid": gameID, "platformid": currentPlatformID}).One(&game)
 	db.lolCache.AddGame(gameID)
 	return game, err
+}
+
+type request struct {
+	Body    string
+	Url     string
+	Created time.Time
+}
+
+func (db *lolMongo) GetRequest(url string, expTime time.Duration) string {
+	var r request
+	err := db.requests.Find(bson.M{"url": url}).One(&r)
+	if err != nil {
+		if Debug {
+			logger.Println("err: failed to find request:", url)
+		}
+		return ""
+	}
+	if time.Now().Before(r.Created.Add(expTime)) {
+		if Debug {
+			logger.Println("trace: From cache:", url)
+		}
+		return r.Body
+	}
+	err = db.requests.Remove(bson.M{"url": url})
+	if Debug {
+		if err != nil {
+			logger.Println("err: failed to remove request stored:", url)
+		}
+		logger.Println("trace: not found:", url)
+	}
+	return ""
+}
+
+func (db *lolMongo) StoreRequest(url string, body string) {
+	var r request
+	r.Url = url
+	r.Body = body
+	r.Created = time.Now()
+	err := db.requests.Insert(&r)
+	if err != nil {
+		logger.Printf("err: url: %s failed to  store request body: \n %v", url, err)
+		return
+	}
+	if Debug {
+		logger.Println("trace: stored request: ", url)
+	}
 }
 
 func (db *lolMongo) CheckGameStored(gameID int64) bool {

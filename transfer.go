@@ -90,6 +90,12 @@ func (db *lolMongo) transferToAnother(host string, port int) error {
 }
 
 func (db *lolMongo) EnsureIndexes() error {
+	db.requests.EnsureIndex(mgo.Index{
+		Key:      []string{"url"},
+		DropDups: true,
+		Unique:   true,
+	})
+
 	err := db.games.EnsureIndex(mgo.Index{
 		Key:      []string{"gameid"},
 		DropDups: true,

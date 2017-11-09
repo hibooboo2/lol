@@ -9,7 +9,7 @@ type staticData struct {
 // /lol/static-data/v3/champions
 func (sd *staticData) Champs() (*ChampionList, error) {
 	var obj ChampionList
-	err := sd.c.GetObjRiot("/lol/static-data/v3/champions?tags=all", &obj)
+	err := sd.c.GetObjRiot("/lol/static-data/v3/champions?tags=all", &obj, WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func (sd *staticData) Champs() (*ChampionList, error) {
 // /lol/static-data/v3/champions/{id}
 func (sd *staticData) Champ(id int) (*Champion, error) {
 	var c Champion
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/champions/%d?tags=all", id), &c)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/champions/%d?tags=all", id), &c, WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (sd *staticData) Champ(id int) (*Champion, error) {
 // /lol/static-data/v3/items
 func (sd *staticData) Items() (*ItemList, error) {
 	var items ItemList
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items"), &items)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items"), &items, WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (sd *staticData) Items() (*ItemList, error) {
 // /lol/static-data/v3/items/{id}
 func (sd *staticData) Item(id int) (*Item, error) {
 	var i Item
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items/%d", id), &i)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items/%d", id), &i, WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (sd *staticData) Item(id int) (*Item, error) {
 // /lol/static-data/v3/language-strings
 func (sd *staticData) LanguageStrings(id int) (*LangStrings, error) {
 	var obj LangStrings
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/language-strings"), &obj)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/language-strings"), &obj, WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ type LangStrings struct {
 // /lol/static-data/v3/languages
 func (sd *staticData) Languages(id int) ([]string, error) {
 	var langs []string
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/languages"), &langs)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/languages"), &langs, WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (sd *staticData) Languages(id int) ([]string, error) {
 // /lol/static-data/v3/maps
 func (sd *staticData) Maps(id int) (*MapsObject, error) {
 	var maps MapsObject
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/maps"), &maps)
+	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/maps"), &maps, WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ type MapsObject struct {
 // /lol/static-data/v3/versions
 func (sd *staticData) Versions() ([]string, error) {
 	var versions []string
-	err := sd.c.GetObjRiot("/lol/static-data/v3/versions", &versions)
+	err := sd.c.GetObjRiot("/lol/static-data/v3/versions", &versions, WEEK*1)
 	return versions, err
 }
 

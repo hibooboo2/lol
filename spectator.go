@@ -1,6 +1,9 @@
 package lol
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type spectator struct {
 	// /lol/spectator/v3/active-games/by-summoner/{summonerId}
@@ -10,7 +13,7 @@ type spectator struct {
 
 func (s *spectator) Game(summonerID int64) *CurrentGameInfo {
 	var g CurrentGameInfo
-	err := s.c.GetObjRiot(fmt.Sprintf("/lol/spectator/v3/active-games/by-summoner/%d", summonerID), &g)
+	err := s.c.GetObjRiot(fmt.Sprintf("/lol/spectator/v3/active-games/by-summoner/%d", summonerID), &g, time.Minute*15)
 	if err != nil {
 		return nil
 	}
@@ -29,7 +32,7 @@ func (s *spectator) GameSummonerName(summonerName string) *CurrentGameInfo {
 
 func (s *spectator) Featured() *FeaturedGames {
 	var g FeaturedGames
-	err := s.c.GetObjRiot("/lol/spectator/v3/featured-games", &g)
+	err := s.c.GetObjRiot("/lol/spectator/v3/featured-games", &g, time.Minute*10)
 	if err != nil {
 		return nil
 	}

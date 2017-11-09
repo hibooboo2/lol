@@ -11,7 +11,7 @@ type champMastery struct {
 
 func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 	var a []champMasteryDTO
-	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a)
+	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a, DAY)
 	if err != nil {
 		return nil
 	}
@@ -20,7 +20,7 @@ func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 
 func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 	var m champMasteryDTO
-	err := cm.c.GetObjRiot(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m)
+	err := cm.c.GetObjRiot(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m, DAY)
 	if err != nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 
 func (cm *champMastery) Total(summonerID int64) int {
 	var total int
-	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total)
+	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total, DAY)
 	if err != nil {
 		return 0
 	}

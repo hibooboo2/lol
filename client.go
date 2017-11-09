@@ -9,7 +9,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -28,17 +27,19 @@ const (
 	RU   RegionEndPoint = "ru.api.riotgames.com"
 	PBE  RegionEndPoint = "pbe1.api.riotgames.com"
 )
+const (
+	WEEK = time.Hour * 24 * 7
+	DAY  = time.Hour * 24
+)
 
 type RegionEndPoint string
 
 type client struct {
 	client            *http.Client
 	baseURL           RegionEndPoint
-	requests          map[string]string
 	cache             *lolMongo
 	requestsMade      *int64
 	requestsSucceeded *int64
-	requestLock       sync.RWMutex
 }
 
 // Debug weather or not debug is enabled for the riot package.
@@ -61,7 +62,6 @@ func NewClient(region RegionEndPoint) (RiotClient, error) {
 		requestsSucceeded: &y,
 		cache:             cache,
 		baseURL:           region,
-		requests:          make(map[string]string),
 	}, nil
 }
 
@@ -69,9 +69,9 @@ func (c *client) GetCache() *lolMongo {
 	return c.cache
 }
 
-func (c *client) GetObjRiot(url string, val interface{}) error {
+func (c *client) GetObjRiot(url string, val interface{}, expTime time.Duration) error {
 	url = path.Join(string(c.baseURL), url)
-	body, err := c.GetBody(url, true)
+	body, err := c.GetBody(url, true, expTime)
 	if err != nil {
 		return err
 	}
@@ -85,11 +85,24 @@ func (c *client) GetObjRiot(url string, val interface{}) error {
 	return err
 }
 
-func (c *client) GetBody(url string, auth bool) (io.Reader, error) {
-	c.requestLock.RLock()
-	body, ok := c.requests[url]
-	c.requestLock.RUnlock()
-	if ok {
+func (c *client) GetObjUnauthedRiot(url string, val interface{}, expTime time.Duration) error {
+	body, err := c.GetBody(url, false, expTime)
+	if err != nil {
+		return err
+	}
+	buff := &bytes.Buffer{}
+	io.Copy(buff, body)
+	cp := buff.String()
+	err = json.NewDecoder(buff).Decode(val)
+	if err != nil && Debug {
+		logger.Println("trace: body: ", cp)
+	}
+	return err
+}
+
+func (c *client) GetBody(url string, auth bool, expTime time.Duration) (io.Reader, error) {
+	body := c.cache.GetRequest(url, expTime)
+	if body != "" {
 		return strings.NewReader(body), nil
 	}
 	resp, err := c.Get(url, auth)
@@ -99,15 +112,11 @@ func (c *client) GetBody(url string, auth bool) (io.Reader, error) {
 	defer resp.Body.Close()
 	buff := &bytes.Buffer{}
 	io.Copy(buff, resp.Body)
-	c.requestLock.Lock()
-	c.requests[url] = buff.String()
-	c.requestLock.Unlock()
+	c.cache.StoreRequest(url, buff.String())
 	return buff, nil
 }
 
 func (c *client) Get(url string, auth bool) (*http.Response, error) {
-	c.requestLock.Lock()
-	defer c.requestLock.Unlock()
 	if !strings.HasPrefix(url, "http") {
 		url = fmt.Sprintf("https://%s", url)
 	}
@@ -131,9 +140,7 @@ func (c *client) Get(url string, auth bool) (*http.Response, error) {
 		logger.Println("debug: Headers on 429 request:", resp.Header)
 		time.Sleep(time.Second * 2)
 		logger.Println("trace: slow down charlie.\r")
-		c.requestLock.Unlock()
 		resp, err = c.Get(url, auth)
-		c.requestLock.Lock()
 		return resp, err
 	case http.StatusNotFound:
 		logger.Println("err: not found", url)
