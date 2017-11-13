@@ -9,6 +9,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var CacheNoExpire bool
+
 type lolMongo struct {
 	session        *mgo.Session
 	db             *mgo.Database
@@ -77,6 +79,9 @@ func (db *lolMongo) GetRequest(url string, expTime time.Duration) string {
 			logger.Println("err: failed to find request:", url)
 		}
 		return ""
+	}
+	if CacheNoExpire {
+		return r.Body
 	}
 	if time.Now().Before(r.Created.Add(expTime)) {
 		if Debug {

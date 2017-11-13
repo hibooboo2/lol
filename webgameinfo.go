@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"sort"
 )
 
 type Team struct {
@@ -46,6 +47,32 @@ type Game struct {
 	ParticipantIdentities []ParticipantIdentity `json:"participantIdentities"`
 	Cached                bool                  `json:"-"`
 }
+
+type Games []Game
+
+func (g Games) Len() int {
+	return len(g)
+}
+
+// Less reports whether the element with
+// index i should sort before the element with index j.
+func (g Games) Less(i, j int) bool {
+	return g[i].GameCreation < g[j].GameCreation
+}
+
+// Swap swaps the elements with indexes i and j.
+func (g Games) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+func (g Games) Sort() {
+	sort.Sort(g)
+}
+
+func (g *Games) Add(game Game) {
+	*g = append(*g, game)
+}
+
 type ParticipantIdentity struct {
 	ParticipantID int    `json:"participantId"`
 	Player        Player `json:"player"`

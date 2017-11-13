@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -103,6 +104,7 @@ func (c *client) GetObjUnauthedRiot(url string, val interface{}, expTime time.Du
 func (c *client) GetBody(url string, auth bool, expTime time.Duration) (io.Reader, error) {
 	body := c.cache.GetRequest(url, expTime)
 	if body != "" {
+		logger.Println(url)
 		return strings.NewReader(body), nil
 	}
 	resp, err := c.Get(url, auth)
@@ -129,17 +131,28 @@ func (c *client) Get(url string, auth bool) (*http.Response, error) {
 		r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
 	}
 	resp, err := c.client.Do(r)
-	if Debug {
-		fmt.Fprintf(os.Stdout, "\t\t\t\t\t\t\t\t\t\t\tRequests Made: %d Requests Succeeded: %d\r", atomic.AddInt64(c.requestsMade, 1), atomic.LoadInt64(c.requestsSucceeded))
-	}
 	if err != nil {
+		if Debug {
+			logger.Printf("err: failed request: %v", err)
+		}
 		return resp, err
 	}
 	switch resp.StatusCode {
 	case http.StatusTooManyRequests:
-		logger.Println("debug: Headers on 429 request:", resp.Header)
-		time.Sleep(time.Second * 2)
-		logger.Println("trace: slow down charlie.\r")
+		if Debug {
+			logger.Println("debug: Headers on 429 request:", resp.Header)
+		}
+		if resp.Header.Get("Retry-After") != "" {
+			wait := resp.Header.Get("Retry-After")
+			waitn, _ := strconv.Atoi(wait)
+			if waitn == 0 {
+				waitn = 2
+			}
+			time.Sleep(time.Second * time.Duration(waitn))
+		}
+		if Debug {
+			logger.Println("trace: slow down charlie.\r")
+		}
 		resp, err = c.Get(url, auth)
 		return resp, err
 	case http.StatusNotFound:

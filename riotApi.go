@@ -33,8 +33,8 @@ type RiotClient interface {
 	Summoners() *summoners
 
 	//Undoced my special
-	GetAllGames(accountID int64, platformID string) ([]Game, error)
-	GetAllGamesLimitPatch(accountID int64, platformID string, patch string, limitAmt int) ([]Game, error)
+	GetAllGames(accountID int64, platformID string) (Games, error)
+	GetAllGamesLimitPatch(accountID int64, platformID string, patch string, limitAmt int) (Games, error)
 	WebMatchHistory(accountID int64, platformID string, index int) (*GamesInfoWebUiResponse, error)
 	WebMatch(gameID int64, currentPlatformID string, useCache bool) (*Game, error)
 	HaveMatch(gameID int64) bool

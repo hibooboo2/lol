@@ -7,8 +7,8 @@ import (
 )
 
 // GetAllGames Gets all the games forever for an account.
-func (c *client) GetAllGames(accountID int64, platformID string) ([]Game, error) {
-	var games []Game
+func (c *client) GetAllGames(accountID int64, platformID string) (Games, error) {
+	var games Games
 	var info *GamesInfoWebUiResponse
 	var err error
 	info, err = c.WebMatchHistory(accountID, platformID, 0)
@@ -46,8 +46,8 @@ func (c *client) GetAllGames(accountID int64, platformID string) ([]Game, error)
 }
 
 // GetAllGamesLimitPatch gets all the games for a player from current patch.
-func (c *client) GetAllGamesLimitPatch(accountID int64, platformID string, patch string, limitAmt int) ([]Game, error) {
-	var games []Game
+func (c *client) GetAllGamesLimitPatch(accountID int64, platformID string, patch string, limitAmt int) (Games, error) {
+	var games Games
 	var info *GamesInfoWebUiResponse
 	var err error
 	info, err = c.WebMatchHistory(accountID, platformID, 0)
