@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
+	"time"
 )
 
 type Team struct {
@@ -46,6 +47,14 @@ type Game struct {
 	Participants          []Participant         `json:"participants"`
 	ParticipantIdentities []ParticipantIdentity `json:"participantIdentities"`
 	Cached                bool                  `json:"-"`
+}
+
+func (g *Game) Created() time.Time {
+	return time.Unix(0, g.GameCreation*int64(time.Millisecond))
+}
+
+func (g *Game) Length() time.Duration {
+	return time.Duration(g.GameDuration) * time.Second
 }
 
 type Games []Game
