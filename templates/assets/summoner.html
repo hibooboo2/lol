@@ -1,0 +1,14 @@
+{{define "summoner"}}
+    <html>
+        <head>
+            {{template "css"}}
+            <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+        </head>
+        <body>
+            <pre>
+                {{.String}}
+            </pre>
+            {{template "champlist" .ChampsPlayed}}
+        </body>
+    </html>
+{{end}}
