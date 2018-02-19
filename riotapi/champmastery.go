@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hibooboo2/lol/cachedclient"
-	"github.com/hibooboo2/lol/constants"
 )
 
 // /lol/champion-mastery/v3/champion-masteries/by-summoner/{summonerId}
@@ -16,7 +15,7 @@ type champMastery struct {
 
 func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 	var a []champMasteryDTO
-	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a, constants.DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a, cachedclient.DAY)
 	if err != nil {
 		return nil
 	}
@@ -25,7 +24,7 @@ func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 
 func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 	var m champMasteryDTO
-	err := cm.c.GetObjFromAPI(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m, constants.DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m, cachedclient.DAY)
 	if err != nil {
 		return nil
 	}
@@ -34,7 +33,7 @@ func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 
 func (cm *champMastery) Total(summonerID int64) int {
 	var total int
-	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total, constants.DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total, cachedclient.DAY)
 	if err != nil {
 		return 0
 	}

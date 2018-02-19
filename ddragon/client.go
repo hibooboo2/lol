@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/hibooboo2/lol"
 	"github.com/hibooboo2/lol/cachedclient"
+	"github.com/hibooboo2/lol/riotapi"
 )
 
 type client struct {
@@ -15,7 +15,7 @@ type client struct {
 	itemsByID   map[int]Item
 	itemsByName map[string]Item
 	itemNames   []string
-	realm       lol.Realms
+	realm       riotapi.Realms
 	one         sync.Once
 }
 
@@ -27,7 +27,7 @@ func DefaultClient() *client {
 	dclient.Do(func() {
 		cc := cachedclient.DefaultClient()
 
-		var relm lol.Realms
+		var relm riotapi.Realms
 		err := cc.GetObjNoBase("http://ddragon.leagueoflegends.com/realms/na.json", &relm, cachedclient.WEEK*1)
 
 		if err != nil {
@@ -39,7 +39,7 @@ func DefaultClient() *client {
 	return c
 }
 
-func NewClient(cc *cachedclient.Client, realms lol.Realms) *client {
+func NewClient(cc *cachedclient.Client, realms riotapi.Realms) *client {
 	c := &client{c: cc, realm: realms}
 	c.init()
 	return c

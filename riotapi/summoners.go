@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/hibooboo2/lol/cachedclient"
-	"github.com/hibooboo2/lol/constants"
 )
 
 // /lol/summoner/v3/summoners/{summonerId}
@@ -42,7 +41,7 @@ func (s *summoners) Arg(arg string) (*Summoner, error) {
 // /lol/summoner/v3/summoners/{summonerId}
 func (s *summoners) ID(summonerID int64) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/%d", summonerID), &sum, constants.DAY)
+	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/%d", summonerID), &sum, cachedclient.DAY)
 	if err != nil {
 		return nil
 	}
@@ -52,7 +51,7 @@ func (s *summoners) ID(summonerID int64) *Summoner {
 // /lol/summoner/v3/summoners/by-account/{accountId}
 func (s *summoners) ByAccountID(accountID int64) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjFromAPI(fmt.Sprintf(`/lol/summoner/v3/summoners/by-account/%d`, accountID), &sum, constants.DAY)
+	err := s.c.GetObjFromAPI(fmt.Sprintf(`/lol/summoner/v3/summoners/by-account/%d`, accountID), &sum, cachedclient.DAY)
 	if err != nil {
 		return nil
 	}
@@ -62,7 +61,7 @@ func (s *summoners) ByAccountID(accountID int64) *Summoner {
 // /lol/summoner/v3/summoners/by-name/{summonerName}
 func (s *summoners) ByName(summonerName string) *Summoner {
 	var sum Summoner
-	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, constants.DAY)
+	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, cachedclient.DAY)
 	if err != nil {
 		// logger.Println("err: ", err)
 		return nil

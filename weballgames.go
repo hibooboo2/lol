@@ -1,4 +1,4 @@
-package lol
+package main
 
 import (
 	"fmt"

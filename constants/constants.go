@@ -1,7 +1,5 @@
 package constants
 
-import "time"
-
 const (
 	BR   RegionEndPoint = "br1.api.riotgames.com"
 	EUNE RegionEndPoint = "eun1.api.riotgames.com"
@@ -15,10 +13,6 @@ const (
 	TR   RegionEndPoint = "tr1.api.riotgames.com"
 	RU   RegionEndPoint = "ru.api.riotgames.com"
 	PBE  RegionEndPoint = "pbe1.api.riotgames.com"
-)
-const (
-	WEEK = time.Hour * 24 * 7
-	DAY  = time.Hour * 24
 )
 
 type RegionEndPoint string

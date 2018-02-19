@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hibooboo2/lol/cachedclient"
-	"github.com/hibooboo2/lol/constants"
 )
 
 type spectator struct {
@@ -29,7 +28,7 @@ func (s *spectator) Game(summonerID int64) *CurrentGameInfo {
 
 func (s *spectator) GameSummonerName(summonerName string) *CurrentGameInfo {
 	var sum Summoner
-	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, constants.DAY)
+	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, cachedclient.DAY)
 	if err != nil {
 		//XXX print error... we need to either start returning errors or having error logging
 		return nil
