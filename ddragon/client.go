@@ -21,7 +21,35 @@ type client struct {
 	one         sync.Once
 }
 
-var DefaultClient *client
+var dclient sync.Once
+
+//DefaultClient the default ddragon client
+func DefaultClient() *client {
+	var c *client
+	dclient.Do(func() {
+		mongo, err := cachedclient.NewMongoCachedClient("", 0)
+		if err != nil {
+			panic(err)
+		}
+
+		mongo.Debug = true
+		mongo.IgnoreExpiration = false
+
+		cc := cachedclient.NewClient(string(lol.NA), mongo, func(r *http.Request) {
+			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
+		})
+
+		var relm lol.Realms
+		err = cc.GetObjFromAPI("/lol/static-data/v3/realms", &relm, cachedclient.WEEK*1)
+
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		c = NewClient(cc, relm)
+	})
+	return c
+}
 
 func NewClient(cc *cachedclient.Client, realms lol.Realms) *client {
 	c := &client{c: cc, realm: realms}
@@ -62,27 +90,4 @@ func (c *client) init() {
 			c.itemNames = append(c.itemNames, item.Name)
 		}
 	}
-}
-
-func init() {
-	mongo, err := cachedclient.NewMongoCachedClient("", 0)
-	if err != nil {
-		panic(err)
-	}
-
-	mongo.Debug = true
-	mongo.IgnoreExpiration = false
-
-	cc := cachedclient.NewClient(string(lol.NA), mongo, func(r *http.Request) {
-		r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
-	})
-
-	var relm lol.Realms
-	err = cc.GetObjFromAPI("/lol/static-data/v3/realms", &relm, cachedclient.WEEK*1)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	DefaultClient = NewClient(cc, relm)
 }

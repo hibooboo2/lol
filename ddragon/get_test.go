@@ -43,7 +43,7 @@ func TestGetChamps(t *testing.T) {
 }
 
 func TestGetItem(t *testing.T) {
-	boot, err := DefaultClient.GetItem(1001)
+	boot, err := DefaultClient().GetItem(1001)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +52,7 @@ func TestGetItem(t *testing.T) {
 		t.Fatal("did not get right name for item")
 	}
 	sr := 0
-	for _, item := range DefaultClient.itemsByID {
+	for _, item := range DefaultClient().itemsByID {
 		sell := float64(item.Gold.Sell) / float64(item.Gold.Total)
 		if item.Maps["11"] && item.Gold.Purchasable && sell > 0.69 && len(item.Into) == 1 && len(item.From) == 1 {
 			t.Log(item.Gold.Total, item.Gold.Sell, sell, item.Name, item.Into, item.From)

@@ -90,7 +90,7 @@ func (i ItemName) String() string {
 	if err != nil {
 		return string(i)
 	}
-	return DefaultClient.itemsByID[id].Name
+	return DefaultClient().itemsByID[id].Name
 }
 
 func (i ItemName) Html() template.HTML {
@@ -99,7 +99,7 @@ func (i ItemName) Html() template.HTML {
 	if err != nil {
 		return template.HTML(i)
 	}
-	return template.HTML(fmt.Sprintf(itemTemplate, DefaultClient.itemsByID[id].Img))
+	return template.HTML(fmt.Sprintf(itemTemplate, DefaultClient().itemsByID[id].Img))
 }
 
 type Item struct {
