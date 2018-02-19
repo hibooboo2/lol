@@ -16,31 +16,42 @@ type RequestCache interface {
 	SetDebug(debug bool)
 }
 
-var DefaultClient *Client
+var DefaultClient = &Client{
+	Auth: func(r *http.Request) {
+		r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
+	},
+	cache: &memCache{
+		requests: make(map[string]request),
+	},
+	baseURL: string(lol.NA),
+	client: &http.Client{
+		Timeout: time.Second * 5,
+	},
+	IgnoreExpiration: true,
+	Debug:            true,
+}
 
-func init() {
+func DefaultMongoClient() (*Client, error) {
 	mongo, err := NewMongoCachedClient("", 0)
 	if err != nil {
 		log.Println("err: failed to connect to mongo. Using in memory cache for default client: ", err)
+		return nil, err
 	}
 	mongo.IgnoreExpiration = true
 
-	DefaultClient = &Client{
+	return &Client{
 		Auth: func(r *http.Request) {
 			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
 		},
-		cache:   mongo,
+		cache: &memCache{
+			requests: make(map[string]request),
+		},
 		baseURL: string(lol.NA),
 		client: &http.Client{
 			Timeout: time.Second * 5,
 		},
 		// IgnoreCache:      true,
 		IgnoreExpiration: true,
-		// Debug:            true,
-	}
-	if mongo == nil {
-		DefaultClient.cache = &memCache{
-			requests: make(map[string]request),
-		}
-	}
+		Debug:            true,
+	}, nil
 }

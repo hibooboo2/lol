@@ -40,7 +40,7 @@ func DefaultClient() *client {
 		})
 
 		var relm lol.Realms
-		err = cc.GetObjFromAPI("/lol/static-data/v3/realms", &relm, cachedclient.WEEK*1)
+		err = cc.GetObjNoBase("http://ddragon.leagueoflegends.com/realms/na.json", &relm, cachedclient.WEEK*1)
 
 		if err != nil {
 			log.Println(err)
