@@ -1,6 +1,53 @@
 {{define "item"}}
-<div>
-    {{.Name}}
-    <img src="{{.Img}}" height="40"/>
-</div>
+    <div class="item">
+        <p>{{.Name}}</p>
+        <img src="{{.Img}}" height="80"/>
+        <br/>
+        <div>
+            {{.Description}}
+        </div>
+        <div>
+            {{if .From}}
+            <div class="section">
+                <div>
+                    Recipe
+                </div>
+                {{range .From}}
+                {{.Html}}
+                {{end}}
+                <div class="goldbase">
+                    +
+                    {{.Gold.Base}}<img src="http://ddragon.leagueoflegends.com/cdn/5.5.1/img/ui/gold.png"/>
+                </div>
+            </div>
+            {{end}}
+            {{if .Into}}
+            <div class="section">
+                <div>
+                    Builds Into
+                </div>
+                {{range .Into}}
+                    {{.Html}}
+                {{end}}
+            </div>
+            {{end}}
+        </div>
+    </div>
+{{end}}
+
+{{define "items"}}
+    <html>
+        <head>
+            {{template "css"}}
+        </head>
+        <body>
+            <ul>
+            {{range .}}
+                    <li>
+                        {{template "item" .}}
+                    </li>
+            {{end}}
+            </ul>
+        </body>
+    </html>
 {{end}}

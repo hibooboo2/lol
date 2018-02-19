@@ -1,6 +1,8 @@
 package lol
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type staticData struct {
 	c *client
@@ -56,12 +58,6 @@ func (sd *staticData) LanguageStrings(id int) (*LangStrings, error) {
 	return &obj, nil
 }
 
-type LangStrings struct {
-	Data    map[string]string
-	Version string
-	Type    string
-}
-
 // /lol/static-data/v3/languages
 func (sd *staticData) Languages(id int) ([]string, error) {
 	var langs []string
@@ -82,6 +78,48 @@ func (sd *staticData) Maps(id int) (*MapsObject, error) {
 	return &maps, nil
 }
 
+// /lol/static-data/v3/versions
+func (sd *staticData) Versions() ([]string, error) {
+	var versions []string
+	err := sd.c.GetObjRiot("/lol/static-data/v3/versions", &versions, WEEK*1)
+	return versions, err
+}
+
+// /lol/static-data/v3/realms
+func (sd *staticData) Realms() (Realms, error) {
+	var relm Realms
+	err := sd.c.GetObjRiot("/lol/static-data/v3/realms", &relm, WEEK*1)
+	return relm, err
+}
+
+//Realms represents info for a relm.
+type Realms struct {
+	Lg              string `json:"lg"`
+	Dd              string `json:"dd"`
+	DefaultLanguage string `json:"l"`
+	LatestVersions  struct {
+		Summoner    string `json:"summoner"`
+		Map         string `json:"map"`
+		Champion    string `json:"champion"`
+		Language    string `json:"language"`
+		Mastery     string `json:"mastery"`
+		Sticker     string `json:"sticker"`
+		Item        string `json:"item"`
+		Rune        string `json:"rune"`
+		Profileicon string `json:"profileicon"`
+	} `json:"n"`
+	Profileiconmax        int    `json:"profileiconmax"`
+	CurrentVersionOfRealm string `json:"v"`
+	Cdn                   string `json:"cdn"`
+	CSS                   string `json:"css"`
+}
+
+type LangStrings struct {
+	Data    map[string]string
+	Version string
+	Type    string
+}
+
 type MapsObject struct {
 	Type    string `json:"type"`
 	Version string `json:"version"`
@@ -98,13 +136,6 @@ type MapsObject struct {
 			H      int    `json:"h"`
 		} `json:"image"`
 	} `json:"data"`
-}
-
-// /lol/static-data/v3/versions
-func (sd *staticData) Versions() ([]string, error) {
-	var versions []string
-	err := sd.c.GetObjRiot("/lol/static-data/v3/versions", &versions, WEEK*1)
-	return versions, err
 }
 
 type ChampionList struct {
@@ -170,21 +201,21 @@ type Champion struct {
 		Armorperlevel        float64 `json:"armorperlevel"`
 		Attackdamage         float64 `json:"attackdamage"`
 		Attackdamageperlevel float64 `json:"attackdamageperlevel"`
-		Attackrange          int     `json:"attackrange"`
-		Attackspeedoffset    int     `json:"attackspeedoffset"`
+		Attackrange          float64 `json:"attackrange"`
+		Attackspeedoffset    float64 `json:"attackspeedoffset"`
 		Attackspeedperlevel  float64 `json:"attackspeedperlevel"`
-		Crit                 int     `json:"crit"`
-		Critperlevel         int     `json:"critperlevel"`
+		Crit                 float64 `json:"crit"`
+		Critperlevel         float64 `json:"critperlevel"`
 		Hp                   float64 `json:"hp"`
-		Hpperlevel           int     `json:"hpperlevel"`
+		Hpperlevel           float64 `json:"hpperlevel"`
 		Hpregen              float64 `json:"hpregen"`
 		Hpregenperlevel      float64 `json:"hpregenperlevel"`
-		Movespeed            int     `json:"movespeed"`
+		Movespeed            float64 `json:"movespeed"`
 		Mp                   float64 `json:"mp"`
-		Mpperlevel           int     `json:"mpperlevel"`
-		Mpregen              int     `json:"mpregen"`
+		Mpperlevel           float64 `json:"mpperlevel"`
+		Mpregen              float64 `json:"mpregen"`
 		Mpregenperlevel      float64 `json:"mpregenperlevel"`
-		Spellblock           int     `json:"spellblock"`
+		Spellblock           float64 `json:"spellblock"`
 		Spellblockperlevel   float64 `json:"spellblockperlevel"`
 	} `json:"stats"`
 	Enemytips []string `json:"enemytips"`
@@ -214,7 +245,7 @@ type Champion struct {
 		Cost         []int         `json:"cost"`
 		CostType     string        `json:"costType"`
 		CostBurn     string        `json:"costBurn"`
-		Cooldown     []int         `json:"cooldown"`
+		Cooldown     []float64     `json:"cooldown"`
 		CooldownBurn string        `json:"cooldownBurn"`
 		Effect       []interface{} `json:"effect"`
 		EffectBurn   []string      `json:"effectBurn"`

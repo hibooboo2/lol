@@ -27,7 +27,6 @@ type RiotClient interface {
 	// /lol/static-data/v3/runes/{id}
 	// /lol/static-data/v3/summoner-spells
 	// /lol/static-data/v3/summoner-spells/{id}
-	// /lol/static-data/v3/realms
 
 	// /lol/status/v3/shard-data
 	Summoners() *summoners

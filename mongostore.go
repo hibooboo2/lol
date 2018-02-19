@@ -9,7 +9,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var CacheNoExpire bool
+var (
+	CacheNoExpire bool
+	IgnoreCache   bool
+)
 
 type lolMongo struct {
 	session        *mgo.Session
@@ -41,7 +44,9 @@ func NewLolMongo(host string, port int) (*lolMongo, error) {
 		playersVisited: session.DB("lol").C("playersvisited"),
 		requests:       session.DB("lol").C("requests"),
 	}
-	mongo.lolCache = &memCache{}
+	mongo.lolCache = &memCache{
+		requests: make(map[string]request),
+	}
 	err = mongo.EnsureIndexes()
 	if err != nil {
 		return nil, err
@@ -73,6 +78,9 @@ type request struct {
 
 func (db *lolMongo) GetRequest(url string, expTime time.Duration) string {
 	var r request
+	if body := db.lolCache.GetRequest(url, expTime); body != "" {
+		return body
+	}
 	err := db.requests.Find(bson.M{"url": url}).One(&r)
 	if err != nil {
 		if Debug {
@@ -81,12 +89,14 @@ func (db *lolMongo) GetRequest(url string, expTime time.Duration) string {
 		return ""
 	}
 	if CacheNoExpire {
+		db.lolCache.StoreRequest(r)
 		return r.Body
 	}
 	if time.Now().Before(r.Created.Add(expTime)) {
 		if Debug {
 			logger.Println("trace: From cache:", url)
 		}
+		db.lolCache.StoreRequest(r)
 		return r.Body
 	}
 	err = db.requests.Remove(bson.M{"url": url})
@@ -112,6 +122,7 @@ func (db *lolMongo) StoreRequest(url string, body string) {
 	if Debug {
 		logger.Println("trace: stored request: ", url)
 	}
+	db.lolCache.StoreRequest(r)
 }
 
 func (db *lolMongo) CheckGameStored(gameID int64) bool {

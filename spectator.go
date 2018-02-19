@@ -67,38 +67,46 @@ type FeaturedGames struct {
 }
 
 type CurrentGameInfo struct {
-	GameID            int64  `json:"gameId"`
-	GameStartTime     int64  `json:"gameStartTime"`
-	PlatformID        string `json:"platformId"`
-	GameMode          string `json:"gameMode"`
-	MapID             int    `json:"mapId"`
-	GameType          string `json:"gameType"`
-	GameQueueConfigID int    `json:"gameQueueConfigId"`
+	GameID            int64                 `json:"gameId"`
+	MapID             int                   `json:"mapId"`
+	GameMode          string                `json:"gameMode"`
+	GameType          string                `json:"gameType"`
+	GameQueueConfigID int                   `json:"gameQueueConfigId"`
+	Participants      []LiveGameParticipant `json:"participants"`
 	Observers         struct {
 		EncryptionKey string `json:"encryptionKey"`
 	} `json:"observers"`
-	Participants []struct {
-		ProfileIconID int    `json:"profileIconId"`
-		ChampionID    int    `json:"championId"`
-		SummonerName  string `json:"summonerName"`
-		Runes         []struct {
-			Count  int `json:"count"`
-			RuneID int `json:"runeId"`
-		} `json:"runes"`
-		Bot       bool `json:"bot"`
-		Masteries []struct {
-			MasteryID int `json:"masteryId"`
-			Rank      int `json:"rank"`
-		} `json:"masteries"`
-		Spell2ID   int   `json:"spell2Id"`
-		TeamID     int   `json:"teamId"`
-		Spell1ID   int   `json:"spell1Id"`
-		SummonerID int64 `json:"summonerId"`
-	} `json:"participants"`
-	GameLength      int `json:"gameLength"`
-	BannedChampions []struct {
-		TeamID     int `json:"teamId"`
-		ChampionID int `json:"championId"`
-		PickTurn   int `json:"pickTurn"`
-	} `json:"bannedChampions"`
+	PlatformID      string     `json:"platformId"`
+	BannedChampions []ChampBan `json:"bannedChampions"`
+	GameStartTime   int        `json:"gameStartTime"`
+	GameLength      int        `json:"gameLength"`
+}
+
+type LiveGameParticipant struct {
+	BannedImg                string        `json:"-"`
+	TeamID                   int           `json:"teamId"`
+	Spell1ID                 int           `json:"spell1Id"`
+	Spell2ID                 int           `json:"spell2Id"`
+	Spell1Img                string        `json:"-"`
+	Spell2Img                string        `json:"-"`
+	ChampionID               int           `json:"championId"`
+	ChampionImage            string        `json:"-"`
+	ProfileIconID            int           `json:"profileIconId"`
+	ProfileIconImage         string        `json:"_"`
+	SummonerName             string        `json:"summonerName"`
+	Bot                      bool          `json:"bot"`
+	SummonerID               int           `json:"summonerId"`
+	GameCustomizationObjects []interface{} `json:"gameCustomizationObjects"`
+	Perks                    struct {
+		PerkIds      []int `json:"perkIds"`
+		PerkStyle    int   `json:"perkStyle"`
+		PerkSubStyle int   `json:"perkSubStyle"`
+	} `json:"perks"`
+}
+
+type ChampBan struct {
+	TeamID   int    `json:"teamId"`
+	ChampID  int    `json:"championId"`
+	PickTurn int    `json:"pickTurn"`
+	Img      string `json:"-"`
 }

@@ -102,10 +102,12 @@ func (c *client) GetObjUnauthedRiot(url string, val interface{}, expTime time.Du
 }
 
 func (c *client) GetBody(url string, auth bool, expTime time.Duration) (io.Reader, error) {
-	body := c.cache.GetRequest(url, expTime)
-	if body != "" {
-		logger.Println(url)
-		return strings.NewReader(body), nil
+	if !IgnoreCache {
+		body := c.cache.GetRequest(url, expTime)
+		if body != "" {
+			logger.Println(url)
+			return strings.NewReader(body), nil
+		}
 	}
 	resp, err := c.Get(url, auth)
 	if err != nil {
@@ -114,7 +116,9 @@ func (c *client) GetBody(url string, auth bool, expTime time.Duration) (io.Reade
 	defer resp.Body.Close()
 	buff := &bytes.Buffer{}
 	io.Copy(buff, resp.Body)
-	c.cache.StoreRequest(url, buff.String())
+	if !IgnoreCache {
+		c.cache.StoreRequest(url, buff.String())
+	}
 	return buff, nil
 }
 
@@ -160,6 +164,9 @@ func (c *client) Get(url string, auth bool) (*http.Response, error) {
 		return nil, fmt.Errorf("err: object not found: %s", url)
 	case http.StatusOK, http.StatusAccepted:
 		atomic.AddInt64(c.requestsSucceeded, 1)
+		if Debug {
+			fmt.Fprintf(os.Stdout, "RequestsSucceeded: %d\r", atomic.LoadInt64(c.requestsSucceeded))
+		}
 		return resp, err
 	default:
 		logger.Println("err: Code not expected:", resp.StatusCode)

@@ -1,10 +1,16 @@
 package ddragon
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hibooboo2/lol/cachedclient"
+	"github.com/renstrom/fuzzysearch/fuzzy"
+	"golang.org/x/net/html"
 )
 
 func (c *client) GetItems() (*ItemData, error) {
@@ -16,28 +22,13 @@ func (c *client) GetItems() (*ItemData, error) {
 	for key, item := range items.Items {
 		id, _ := strconv.Atoi(key)
 		item.Img = c.ItemSpriteLink(id)
+		item.FixDesc()
 		items.Items[key] = item
 	}
 	return &items, nil
 }
 
 func (c *client) GetItem(id int) (*Item, error) {
-	c.one.Do(func() {
-		items, err := c.GetItems()
-		if err != nil {
-			logger.Println("err: failed to initialize items: ", err)
-			return
-		}
-		c.itemsByID = make(map[int]Item)
-		for key, item := range items.Items {
-			id, err := strconv.Atoi(key)
-			if err != nil {
-				logger.Println("err: failed to parse item id: ", key, err)
-				continue
-			}
-			c.itemsByID[id] = item
-		}
-	})
 	if c.itemsByID == nil {
 		return nil, fmt.Errorf("Items not found") //Probably should be a panic... Or just call at start of client init to make sure it works.
 	}
@@ -46,6 +37,34 @@ func (c *client) GetItem(id int) (*Item, error) {
 	}
 	err := fmt.Sprintf("Cannot find item %d", id)
 	return &Item{Name: err}, fmt.Errorf(err)
+}
+
+func (c *client) SearchItems(itemName string) []Item {
+	itemNames := fuzzy.FindFold(itemName, c.itemNames)
+	items := []Item{}
+	for _, name := range itemNames {
+		items = append(items, c.itemsByName[name])
+	}
+	return items
+}
+
+func (i *Item) FixDesc() {
+	node, err := html.Parse(strings.NewReader(string(i.Description)))
+	if err != nil {
+		log.Println(err)
+		i.Description = ""
+		return
+	}
+	buff := &bytes.Buffer{}
+	err = html.Render(buff, node)
+	if err != nil {
+		log.Println(err)
+		i.Description = ""
+		return
+	}
+
+	newDesc := strings.NewReplacer("<html>", "", "</html>", "", "<head>", "", "</head>", "", "<body>", "", "</body>", "").Replace(buff.String())
+	i.Description = template.HTML(newDesc)
 }
 
 type ItemData struct {
@@ -74,13 +93,22 @@ func (i ItemName) String() string {
 	return DefaultClient.itemsByID[id].Name
 }
 
+func (i ItemName) Html() template.HTML {
+	const itemTemplate = `<img src="%s" height="38"/>`
+	id, err := strconv.Atoi(string(i))
+	if err != nil {
+		return template.HTML(i)
+	}
+	return template.HTML(fmt.Sprintf(itemTemplate, DefaultClient.itemsByID[id].Img))
+}
+
 type Item struct {
 	Name             string            `json:"name"`
 	Img              string            `json:"-"`
 	Rune             RuneDTO           `json:"rune"`
 	Gold             GoldDTO           `json:"gold"`
 	Group            string            `json:"group"`
-	Description      string            `json:"description"`
+	Description      template.HTML     `json:"description"`
 	Colloq           string            `json:"colloq"`
 	Plaintext        string            `json:"plaintext"`
 	Consumed         bool              `json:"consumed"`

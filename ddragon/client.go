@@ -12,11 +12,13 @@ import (
 )
 
 type client struct {
-	c          *cachedclient.Client
-	champsByID map[int]Champion
-	itemsByID  map[int]Item
-	realm      lol.Realms
-	one        sync.Once
+	c           *cachedclient.Client
+	champsByID  map[int]Champion
+	itemsByID   map[int]Item
+	itemsByName map[string]Item
+	itemNames   []string
+	realm       lol.Realms
+	one         sync.Once
 }
 
 var DefaultClient *client
@@ -31,13 +33,33 @@ func (c *client) init() {
 	champs, err := c.Champs()
 	if err != nil {
 		log.Println(err)
-		return
+
+	} else {
+		c.champsByID = make(map[int]Champion)
+		for _, champ := range champs.Data {
+			id, err := strconv.Atoi(champ.Key)
+			if err == nil {
+				c.champsByID[id] = champ
+			}
+		}
 	}
-	c.champsByID = make(map[int]Champion)
-	for _, champ := range champs.Data {
-		id, err := strconv.Atoi(champ.Key)
-		if err == nil {
-			c.champsByID[id] = champ
+
+	items, err := c.GetItems()
+	if err != nil {
+		logger.Println("err: failed to initialize items: ", err)
+
+	} else {
+		c.itemsByID = make(map[int]Item)
+		c.itemsByName = make(map[string]Item)
+		for key, item := range items.Items {
+			id, err := strconv.Atoi(key)
+			if err != nil {
+				logger.Println("err: failed to parse item id: ", key, err)
+				continue
+			}
+			c.itemsByName[item.Name] = item
+			c.itemsByID[id] = item
+			c.itemNames = append(c.itemNames, item.Name)
 		}
 	}
 }
