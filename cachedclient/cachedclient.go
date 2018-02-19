@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/hibooboo2/lol"
+	"github.com/hibooboo2/lol/constants"
 )
 
 type RequestCache interface {
@@ -26,7 +26,7 @@ func DefaultClient() *Client {
 		cache: &memCache{
 			requests: make(map[string]request),
 		},
-		baseURL: string(lol.NA),
+		baseURL: string(constants.NA),
 		client: &http.Client{
 			Timeout: time.Second * 5,
 		},
@@ -48,7 +48,7 @@ func DefaultMongoClient() (*Client, error) {
 			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
 		},
 		cache:   mongo,
-		baseURL: string(lol.NA),
+		baseURL: string(constants.NA),
 		client: &http.Client{
 			Timeout: time.Second * 5,
 		},

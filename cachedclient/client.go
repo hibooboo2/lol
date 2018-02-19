@@ -140,6 +140,11 @@ func (c *Client) SwapCache(cache RequestCache) error {
 	return nil
 }
 
+//GetCache returns the RequestCache for the Client.
+func (c *Client) GetCache() RequestCache {
+	return c.cache
+}
+
 //NewClient make a new cached http client for interfacing with riots api.
 func NewClient(baseUrl string, cache RequestCache, auth func(r *http.Request)) *Client {
 	c := cache
