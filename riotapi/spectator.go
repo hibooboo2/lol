@@ -1,19 +1,23 @@
-package lol
+package riotapi
 
 import (
 	"fmt"
+	"net/url"
 	"time"
+
+	"github.com/hibooboo2/lol/cachedclient"
+	"github.com/hibooboo2/lol/constants"
 )
 
 type spectator struct {
 	// /lol/spectator/v3/active-games/by-summoner/{summonerId}
 	// /lol/spectator/v3/featured-games
-	c *client
+	c *cachedclient.Client
 }
 
 func (s *spectator) Game(summonerID int64) *CurrentGameInfo {
 	var g CurrentGameInfo
-	err := s.c.GetObjRiot(fmt.Sprintf("/lol/spectator/v3/active-games/by-summoner/%d", summonerID), &g, time.Minute*15)
+	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/spectator/v3/active-games/by-summoner/%d", summonerID), &g, time.Minute*15)
 	if err != nil {
 		return nil
 	}
@@ -24,15 +28,19 @@ func (s *spectator) Game(summonerID int64) *CurrentGameInfo {
 }
 
 func (s *spectator) GameSummonerName(summonerName string) *CurrentGameInfo {
-	sum := s.c.Summoners().ByName(summonerName)
-	g := s.Game(sum.ID)
-	logger.Println("trace: game: ", g)
-	return g
+	var sum Summoner
+	err := s.c.GetObjFromAPI(fmt.Sprintf("/lol/summoner/v3/summoners/by-name/%s", url.PathEscape(summonerName)), &sum, constants.DAY)
+	if err != nil {
+		//XXX print error... we need to either start returning errors or having error logging
+		return nil
+	}
+	// logger.Println("trace: game: ", g)
+	return s.Game(sum.ID)
 }
 
 func (s *spectator) Featured() *FeaturedGames {
 	var g FeaturedGames
-	err := s.c.GetObjRiot("/lol/spectator/v3/featured-games", &g, time.Minute*10)
+	err := s.c.GetObjFromAPI("/lol/spectator/v3/featured-games", &g, time.Minute*10)
 	if err != nil {
 		return nil
 	}

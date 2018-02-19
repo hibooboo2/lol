@@ -1,4 +1,4 @@
-package lol
+package riotapi
 
 type ItemList struct {
 	Data map[string]Item `json:"data"`

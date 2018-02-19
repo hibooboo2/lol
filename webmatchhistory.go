@@ -167,7 +167,7 @@ type TimeLine struct {
 }
 
 // WebMatchHistory circumvent riots api throttling. Or at least attepmt to. This is using the endpoint that the web ui uses. No docs for it.
-func (c *client) WebMatchHistory(accountID int64, platformID string, index int) (*GamesInfoWebUiResponse, error) {
+func WebMatchHistory(accountID int64, platformID string, index int) (*GamesInfoWebUiResponse, error) {
 	var games GamesInfoWebUiResponse
 	query := make(url.Values)
 	if index != 0 {

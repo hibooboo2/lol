@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"sort"
 	"time"
+
+	"github.com/hibooboo2/lol/riotapi"
 )
 
 type Team struct {
@@ -88,7 +90,7 @@ type ParticipantIdentity struct {
 }
 
 // WebMatch circumvent riots api throttling. Or at least attepmt to. This is using the endpoint that the web ui uses. No docs for it.
-func (c *client) WebMatch(gameID int64, currentPlatformID string, useCache bool) (*Game, error) {
+func WebMatch(gameID int64, currentPlatformID string, useCache bool) (*Game, error) {
 	var game Game
 	var err error
 	if useCache {
@@ -128,6 +130,26 @@ func (c *client) WebMatch(gameID int64, currentPlatformID string, useCache bool)
 	return &game, nil
 }
 
-func (c *client) HaveMatch(gameID int64) bool {
+func HaveMatch(gameID int64) bool {
 	return c.cache.lolCache.HaveGame(gameID)
+}
+
+type Player struct {
+	PlatformID        string `json:"platformId"`
+	AccountID         int64  `json:"accountId"`
+	SummonerName      string `json:"summonerName"`
+	SummonerID        int64  `json:"summonerId"`
+	CurrentPlatformID string `json:"currentPlatformId"`
+	CurrentAccountID  int64  `json:"currentAccountId"`
+	MatchHistoryURI   string `json:"matchHistoryUri"`
+	ProfileIcon       int    `json:"profileIcon"`
+}
+
+func (p Player) ToSummoner() riotapi.Summoner {
+	return riotapi.Summoner{
+		ID:            p.SummonerID,
+		Name:          p.SummonerName,
+		AccountID:     p.AccountID,
+		ProfileIconID: p.ProfileIcon,
+	}
 }

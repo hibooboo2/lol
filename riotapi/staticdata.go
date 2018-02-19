@@ -1,17 +1,20 @@
-package lol
+package riotapi
 
 import (
 	"fmt"
+
+	"github.com/hibooboo2/lol/cachedclient"
+	"github.com/hibooboo2/lol/constants"
 )
 
 type staticData struct {
-	c *client
+	c *cachedclient.Client
 }
 
 // /lol/static-data/v3/champions
 func (sd *staticData) Champs() (*ChampionList, error) {
 	var obj ChampionList
-	err := sd.c.GetObjRiot("/lol/static-data/v3/champions?tags=all", &obj, WEEK*2)
+	err := sd.c.GetObjFromAPI("/lol/static-data/v3/champions?tags=all", &obj, constants.WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +24,7 @@ func (sd *staticData) Champs() (*ChampionList, error) {
 // /lol/static-data/v3/champions/{id}
 func (sd *staticData) Champ(id int) (*Champion, error) {
 	var c Champion
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/champions/%d?tags=all", id), &c, WEEK*2)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/champions/%d?tags=all", id), &c, constants.WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +34,7 @@ func (sd *staticData) Champ(id int) (*Champion, error) {
 // /lol/static-data/v3/items
 func (sd *staticData) Items() (*ItemList, error) {
 	var items ItemList
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items"), &items, WEEK*2)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/items"), &items, constants.WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +44,7 @@ func (sd *staticData) Items() (*ItemList, error) {
 // /lol/static-data/v3/items/{id}
 func (sd *staticData) Item(id int) (*Item, error) {
 	var i Item
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/items/%d", id), &i, WEEK*2)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/items/%d", id), &i, constants.WEEK*2)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +54,7 @@ func (sd *staticData) Item(id int) (*Item, error) {
 // /lol/static-data/v3/language-strings
 func (sd *staticData) LanguageStrings(id int) (*LangStrings, error) {
 	var obj LangStrings
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/language-strings"), &obj, WEEK*4)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/language-strings"), &obj, constants.WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +64,7 @@ func (sd *staticData) LanguageStrings(id int) (*LangStrings, error) {
 // /lol/static-data/v3/languages
 func (sd *staticData) Languages(id int) ([]string, error) {
 	var langs []string
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/languages"), &langs, WEEK*4)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/languages"), &langs, constants.WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +74,7 @@ func (sd *staticData) Languages(id int) ([]string, error) {
 // /lol/static-data/v3/maps
 func (sd *staticData) Maps(id int) (*MapsObject, error) {
 	var maps MapsObject
-	err := sd.c.GetObjRiot(fmt.Sprintf("/lol/static-data/v3/maps"), &maps, WEEK*4)
+	err := sd.c.GetObjFromAPI(fmt.Sprintf("/lol/static-data/v3/maps"), &maps, constants.WEEK*4)
 	if err != nil {
 		return nil, err
 	}
@@ -81,14 +84,14 @@ func (sd *staticData) Maps(id int) (*MapsObject, error) {
 // /lol/static-data/v3/versions
 func (sd *staticData) Versions() ([]string, error) {
 	var versions []string
-	err := sd.c.GetObjRiot("/lol/static-data/v3/versions", &versions, WEEK*1)
+	err := sd.c.GetObjFromAPI("/lol/static-data/v3/versions", &versions, constants.WEEK*1)
 	return versions, err
 }
 
 // /lol/static-data/v3/realms
 func (sd *staticData) Realms() (Realms, error) {
 	var relm Realms
-	err := sd.c.GetObjRiot("/lol/static-data/v3/realms", &relm, WEEK*1)
+	err := sd.c.GetObjFromAPI("/lol/static-data/v3/realms", &relm, constants.WEEK*1)
 	return relm, err
 }
 

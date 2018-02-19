@@ -1,17 +1,22 @@
-package lol
+package riotapi
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/hibooboo2/lol/cachedclient"
+	"github.com/hibooboo2/lol/constants"
+)
 
 // /lol/champion-mastery/v3/champion-masteries/by-summoner/{summonerId}
 // /lol/champion-mastery/v3/champion-masteries/by-summoner/{summonerId}/by-champion/{championId}
 // /lol/champion-mastery/v3/scores/by-summoner/{summonerId}
 type champMastery struct {
-	c *client
+	c *cachedclient.Client
 }
 
 func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 	var a []champMasteryDTO
-	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a, DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/champion-masteries/by-summoner/%d", summonerID), &a, constants.DAY)
 	if err != nil {
 		return nil
 	}
@@ -20,7 +25,7 @@ func (cm *champMastery) All(summonerID int64) []champMasteryDTO {
 
 func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 	var m champMasteryDTO
-	err := cm.c.GetObjRiot(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m, DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf(`/lol/champion-mastery/v3/champion-masteries/by-summoner/%d/by-champion/%d`, summonerID, champID), &m, constants.DAY)
 	if err != nil {
 		return nil
 	}
@@ -29,7 +34,7 @@ func (cm *champMastery) Champ(summonerID, champID int64) *champMasteryDTO {
 
 func (cm *champMastery) Total(summonerID int64) int {
 	var total int
-	err := cm.c.GetObjRiot(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total, DAY)
+	err := cm.c.GetObjFromAPI(fmt.Sprintf("/lol/champion-mastery/v3/scores/by-summoner/%d", summonerID), &total, constants.DAY)
 	if err != nil {
 		return 0
 	}
