@@ -16,19 +16,23 @@ type RequestCache interface {
 	SetDebug(debug bool)
 }
 
-var DefaultClient = &Client{
-	Auth: func(r *http.Request) {
-		r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
-	},
-	cache: &memCache{
-		requests: make(map[string]request),
-	},
-	baseURL: string(lol.NA),
-	client: &http.Client{
-		Timeout: time.Second * 5,
-	},
-	IgnoreExpiration: true,
-	Debug:            true,
+//DefaultClient is the default cached client for the package. It has an auth function for riots api and
+//uses na server as well as an in memory cache.
+func DefaultClient() *Client {
+	return &Client{
+		Auth: func(r *http.Request) {
+			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
+		},
+		cache: &memCache{
+			requests: make(map[string]request),
+		},
+		baseURL: string(lol.NA),
+		client: &http.Client{
+			Timeout: time.Second * 5,
+		},
+		IgnoreExpiration: true,
+		Debug:            true,
+	}
 }
 
 func DefaultMongoClient() (*Client, error) {
@@ -43,9 +47,7 @@ func DefaultMongoClient() (*Client, error) {
 		Auth: func(r *http.Request) {
 			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
 		},
-		cache: &memCache{
-			requests: make(map[string]request),
-		},
+		cache:   mongo,
 		baseURL: string(lol.NA),
 		client: &http.Client{
 			Timeout: time.Second * 5,

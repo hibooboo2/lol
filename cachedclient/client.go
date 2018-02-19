@@ -131,10 +131,26 @@ func (c *Client) Get(url string, auth bool) (*http.Response, error) {
 	}
 }
 
+//SwapCache change the requestcache used by the Client.
+func (c *Client) SwapCache(cache RequestCache) error {
+	if cache == nil {
+		return fmt.Errorf("must not provide nil cache")
+	}
+	c.cache = cache
+	return nil
+}
+
+//NewClient make a new cached http client for interfacing with riots api.
 func NewClient(baseUrl string, cache RequestCache, auth func(r *http.Request)) *Client {
+	c := cache
+	if c == nil {
+		c = &memCache{
+			requests: make(map[string]request),
+		}
+	}
 	return &Client{
 		Auth:    auth,
-		cache:   cache,
+		cache:   c,
 		baseURL: baseUrl,
 		client: &http.Client{
 			Timeout: time.Second * 5,

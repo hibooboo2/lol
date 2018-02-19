@@ -2,8 +2,6 @@ package ddragon
 
 import (
 	"log"
-	"net/http"
-	"os"
 	"strconv"
 	"sync"
 
@@ -27,20 +25,10 @@ var dclient sync.Once
 func DefaultClient() *client {
 	var c *client
 	dclient.Do(func() {
-		mongo, err := cachedclient.NewMongoCachedClient("", 0)
-		if err != nil {
-			panic(err)
-		}
-
-		mongo.Debug = true
-		mongo.IgnoreExpiration = false
-
-		cc := cachedclient.NewClient(string(lol.NA), mongo, func(r *http.Request) {
-			r.Header.Add("X-Riot-Token", os.Getenv("X_Riot_Token"))
-		})
+		cc := cachedclient.DefaultClient()
 
 		var relm lol.Realms
-		err = cc.GetObjNoBase("http://ddragon.leagueoflegends.com/realms/na.json", &relm, cachedclient.WEEK*1)
+		err := cc.GetObjNoBase("http://ddragon.leagueoflegends.com/realms/na.json", &relm, cachedclient.WEEK*1)
 
 		if err != nil {
 			log.Println(err)
