@@ -39,13 +39,6 @@ type RiotClient interface {
 	// /lol/status/v3/shard-data
 	Summoners() *summoners
 
-	//Undoced my special
-	// GetAllGames(accountID int64, platformID string) (Games, error)
-	// GetAllGamesLimitPatch(accountID int64, platformID string, patch string, limitAmt int) (Games, error)
-	// WebMatchHistory(accountID int64, platformID string, index int) (*GamesInfoWebUiResponse, error)
-	// WebMatch(gameID int64, currentPlatformID string, useCache bool) (*Game, error)
-	// HaveMatch(gameID int64) bool
-
 	//GetCache Expose Cache
 	GetCache() cachedclient.RequestCache
 }
